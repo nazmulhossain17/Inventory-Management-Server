@@ -27,7 +27,7 @@ const registerUser = asyncHandler(async (req, res) => {
         return;
     }
 
-    
+     
 
     const user = await User.create({ name, email, password });
     const token = generateToken(user._id)
