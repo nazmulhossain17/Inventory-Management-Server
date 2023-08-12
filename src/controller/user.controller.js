@@ -105,7 +105,14 @@ const getUser = asyncHandler(async(req, res)=>{
         res.status(400);
         throw new Error("User Not Found")
     }
+});
+
+const loginStatus = asyncHandler(async(req, res)=>{
+    const token = req.cookies.token;
+    if(!token){
+        return res.json(false)
+    }
 })
 
 
-module.exports = { registerUser, loginUser, logOut, getUser };
+module.exports = { registerUser, loginUser, logOut, getUser, loginStatus };
