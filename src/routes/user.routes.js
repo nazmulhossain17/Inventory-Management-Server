@@ -8,6 +8,7 @@ router.get("/test", (req, res)=>{
 
 router.post("/register", registerUser)
 router.post("/login", loginUser)
+router.get("/logout", loginUser)
 
 
 module.exports = router;
