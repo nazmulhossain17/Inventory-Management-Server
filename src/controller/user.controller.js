@@ -112,6 +112,11 @@ const loginStatus = asyncHandler(async(req, res)=>{
     if(!token){
         return res.json(false)
     }
+    const verified = jwt.verify(token, jwtKey)
+    if(verified){
+        return res.json(true)
+    }
+    return res.json(false);
 })
 
 
