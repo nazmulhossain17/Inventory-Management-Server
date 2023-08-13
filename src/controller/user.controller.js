@@ -144,4 +144,9 @@ const updateUser = asyncHandler(async(req, res)=>{
     }
 })
 
-module.exports = { registerUser, loginUser, logOut, getUser, loginStatus, updateUser };
+
+const changePassword = asyncHandler(async(req, res)=>{
+
+})
+
+module.exports = { registerUser, loginUser, logOut, getUser, loginStatus, updateUser, changePassword };
