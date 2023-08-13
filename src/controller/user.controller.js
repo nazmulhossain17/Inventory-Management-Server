@@ -180,7 +180,8 @@ const forgotPassword = asyncHandler(async(req, res)=>{
         throw new Error("User does not exist")
     }
 
-    let resetToken = crypto.randomBytes(32).toString("hex") + user._id
+    let resetToken = crypto.randomBytes(32).toString("hex") + user._id;
+    console.log(resetToken)
 
     const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex")
     
