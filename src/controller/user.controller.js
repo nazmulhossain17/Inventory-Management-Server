@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 const { jwtKey } = require('../config/secret');
 const bcrypt = require("bcryptjs");
-
+const crypto = require("crypto")
 
 const generateToken = (id) =>{
     return jwt.sign({id}, jwtKey, {expiresIn: "1d"})
@@ -170,7 +170,19 @@ const changePassword = asyncHandler(async(req, res)=>{
 }); 
 
 const forgotPassword = asyncHandler(async(req, res)=>{
+    const {email} = req.body
+    const user = await User.findOne({email})
 
+    if(!user){
+        res.status(404)
+        throw new Error("User does not exist")
+    }
+
+    let resetToken = crypto.randomBytes(32).toString("hex") + user._id
+
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex")
+    console.log(hashedToken)
+    res.send("Forgot password")
 })
 
 module.exports = { registerUser, loginUser, logOut, getUser, loginStatus, updateUser, changePassword, forgotPassword };
