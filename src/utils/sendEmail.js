@@ -1,10 +1,9 @@
 const nodemailer = require("nodemailer");
-const { emailHost, emailUser, emailPass } = require("../config/secret");
+const { emailUser, emailPass } = require("../config/secret");
 
 
 const sendEmail = async(subject, message, send_to, sent_from, reply_to)=>{
     const transporter = nodemailer.createTransport({
-        host: emailHost,
         port: 587,
         auth: {
             user: emailUser,

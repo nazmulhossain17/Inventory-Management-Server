@@ -5,6 +5,7 @@ const { jwtKey, clientURL, emailUser } = require('../config/secret');
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const sendEmail = require('../utils/sendEmail');
+const Token = require('../models/tokenModel');
 
 const generateToken = (id) =>{
     return jwt.sign({id}, jwtKey, {expiresIn: "1d"})
@@ -170,45 +171,105 @@ const changePassword = asyncHandler(async(req, res)=>{
     }
 }); 
 
-const forgotPassword = asyncHandler(async(req, res)=>{
-    const {email} = req.body
-    const user = await User.findOne({email})
+// const forgotPassword = asyncHandler(async(req, res)=>{
+//     const {email} = req.body
+//     const user = await User.findOne({email})
 
-    if(!user){
-        res.status(404)
-        throw new Error("User does not exist")
-    }
+//     if(!user){
+//         res.status(404)
+//         throw new Error("User does not exist")
+//     }
 
-    let resetToken = crypto.randomBytes(32).toString("hex") + user._id
+//     let resetToken = crypto.randomBytes(32).toString("hex") + user._id
 
-    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex")
+//     const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex")
     
+//     await new Token({
+//         userId: user._id,
+//         token: hashedToken,
+//         createdAt: Date.now(),
+//         expiresAt: Date.now() + 30 * (60 * 1000)
+//     }).save()
+//     const resetUrl = `${clientURL}/resetpassword/${resetToken}`
+//     const message = `
+//         <h2>Hello ${user.name}</h2>
+//         <p>Click the url below to reset your password and the rest link is valid for only 30minitue</p>
+//         <a href=${resetUrl} clicktracking=off>${resetUrl}</a>
+       
+//         <p>Regards...</p>
+//         `
+//     const subject = "Reset your password";
+//     const send_to = user.email
+//     const sent_from = emailUser
+
+//     try {
+//         await sendEmail(subject, message, send_to, sent_from)
+//         res.status(200).json({sucess: true, message: "Check Your Email and Reset Password"})
+//     } catch (error) {
+//         res.status(500)
+//         throw new Error("Email not sent, Please try again")
+//     }
+// }) 
+
+
+const forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+  
+    if (!user) {
+      res.status(404);
+      throw new Error("User does not exist");
+    }
+  
+    // Delete token if it exists in DB
+    let token = await Token.findOne({ userId: user._id });
+    if (token) {
+      await token.deleteOne();
+    }
+  
+    // Create Reste Token
+    let resetToken = crypto.randomBytes(32).toString("hex") + user._id;
+    console.log(resetToken);
+  
+    // Hash token before saving to DB
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+  
+    // Save Token to DB
     await new Token({
-        userId: user._id,
-        token: hashedToken,
-        createdAt: Date.now(),
-        expiresAt: Date.now() + 30 * (60 * 1000)
-    }).save()
-    const resetUrl = `${clientURL}/resetpassword/${resetToken}`
+      userId: user._id,
+      token: hashedToken,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 30 * (60 * 1000), // Thirty minutes
+    }).save();
+  
+    // Construct Reset Url
+    const resetUrl = `${clientURL}/resetpassword/${resetToken}`;
+  
+    // Reset Email
     const message = `
         <h2>Hello ${user.name}</h2>
-        <p>Click the url below to reset your password and the rest link is valid for only 30minitue</p>
+        <p>Please use the url below to reset your password</p>  
+        <p>This reset link is valid for only 30minutes.</p>
+  
         <a href=${resetUrl} clicktracking=off>${resetUrl}</a>
-       
+  
         <p>Regards...</p>
-        `
-    const subject = "Reset your password";
-    const send_to = user.email
-    const sent_from = emailUser
-
+        <p>Pinvent Team</p>
+      `;
+    const subject = "Password Reset Request";
+    const send_to = user.email;
+    const sent_from = emailUser;
+  
     try {
-        await sendEmail(subject, message, send_to, sent_from)
-        res.status(200).json({sucess: true, message: "Check Your Email and Reset Password"})
+      await sendEmail(subject, message, send_to, sent_from);
+      res.status(200).json({ success: true, message: "Reset Email Sent" });
     } catch (error) {
-        res.status(500)
-        throw new Error("Email not sent, Please try again")
+      res.status(500);
+      throw new Error("Email not sent, please try again");
     }
-    res.send("Forgot password")
-})
+  });
 
 module.exports = { registerUser, loginUser, logOut, getUser, loginStatus, updateUser, changePassword, forgotPassword };

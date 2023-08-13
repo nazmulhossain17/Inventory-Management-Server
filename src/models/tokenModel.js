@@ -12,14 +12,14 @@ const tokenSchema = mongoose.Schema({
         required: true,
     },
     createdAt: {
-        type: Data,
+        type: Date, // Corrected
         required: true,
     },
     expiresAt: {
-        type: Data,
+        type: Date, // Corrected
         required: true,
     },
 });
 
-const Token = mongoose.model("Token", tokenSchema)
+const Token = mongoose.model("Token", tokenSchema);
 module.exports = Token;
