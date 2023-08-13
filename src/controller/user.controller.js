@@ -169,4 +169,8 @@ const changePassword = asyncHandler(async(req, res)=>{
     }
 }); 
 
-module.exports = { registerUser, loginUser, logOut, getUser, loginStatus, updateUser, changePassword };
+const forgotPassword = asyncHandler(async(req, res)=>{
+
+})
+
+module.exports = { registerUser, loginUser, logOut, getUser, loginStatus, updateUser, changePassword, forgotPassword };
