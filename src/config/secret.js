@@ -11,4 +11,6 @@ const emailUser = process.env.EMAIL_USER;
 
 const emailPass = process.env.EMAIL_PASSWORD;
 
-module.exports = {dbURL, jwtKey, emailHost, emailUser, emailPass}
+const clientURL = process.env.CLIENT_URL
+
+module.exports = {dbURL, jwtKey, emailHost, emailUser, emailPass, clientURL}

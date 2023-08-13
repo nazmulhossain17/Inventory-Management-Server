@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
-const { jwtKey } = require('../config/secret');
+const { jwtKey, clientURL } = require('../config/secret');
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto")
 
@@ -181,7 +181,21 @@ const forgotPassword = asyncHandler(async(req, res)=>{
     let resetToken = crypto.randomBytes(32).toString("hex") + user._id
 
     const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex")
-    console.log(hashedToken)
+    
+    await new Token({
+        userId: user._id,
+        token: hashedToken,
+        createdAt: Date.now(),
+        expiresAt: Date.now() + 30 * (60 * 1000)
+    }).save()
+    const resetUrl = `${clientURL}/resetpassword/${resetToken}`
+    const message = `
+        <h2>Hello ${user.name}</h2>
+        <p>Click the url below to reset your password and the rest link is valid for only 30minitue</p>
+        <a href=${resetUrl} clicktracking=off>${resetUrl}</a>
+       
+        <p>Regards...</p>
+        `
     res.send("Forgot password")
 })
 
