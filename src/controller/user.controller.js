@@ -1,9 +1,10 @@
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
-const { jwtKey, clientURL } = require('../config/secret');
+const { jwtKey, clientURL, emailUser } = require('../config/secret');
 const bcrypt = require("bcryptjs");
-const crypto = require("crypto")
+const crypto = require("crypto");
+const sendEmail = require('../utils/sendEmail');
 
 const generateToken = (id) =>{
     return jwt.sign({id}, jwtKey, {expiresIn: "1d"})
@@ -196,6 +197,17 @@ const forgotPassword = asyncHandler(async(req, res)=>{
        
         <p>Regards...</p>
         `
+    const subject = "Reset your password";
+    const send_to = user.email
+    const sent_from = emailUser
+
+    try {
+        await sendEmail(subject, message, send_to, sent_from)
+        res.status(200).json({sucess: true, message: "Check Your Email and Reset Password"})
+    } catch (error) {
+        res.status(500)
+        throw new Error("Email not sent, Please try again")
+    }
     res.send("Forgot password")
 })
 
